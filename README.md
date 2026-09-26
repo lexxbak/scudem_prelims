@@ -1,4 +1,4 @@
-# Logistic Population Growth Model — SCUDEM Preliminary Round
+# Logistic Population Growth Model: SCUDEM Preliminary Round
 
 Numerical modelling of population growth under carrying-capacity constraints, 
 solved via first-order ODE methods, presented for SCUDEM (DE Modelling Contest).
