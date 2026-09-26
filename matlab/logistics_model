@@ -1,0 +1,61 @@
+% LOGISTIC_GROWTH_MODEL
+% Numerically solves the logistic population growth ODE
+%
+%   dP/dt = r*P*(1 - P/K)
+%
+% using Euler's method and 4th-order Runge-Kutta, and compares both
+% against the known analytical (closed-form) solution.
+%
+% SCUDEM DE Modelling Contest - Preliminary Round
+
+clear; clc; close all;
+
+%% Parameters
+r  = 0.3;     % intrinsic growth rate
+K  = 1000;    % carrying capacity
+P0 = 50;      % initial population
+tspan = [0 40];
+h = 1;        % step size
+
+% ODE: dP/dt = f(t, P)
+f = @(t, P) r * P * (1 - P / K);
+
+%% Numerical solutions
+[t_euler, P_euler] = euler_method(f, tspan, P0, h);
+[t_rk4,   P_rk4]   = rk4_method(f, tspan, P0, h);
+
+%% Analytical solution
+% P(t) = K*P0*exp(r*t) / (K + P0*(exp(r*t) - 1))
+t_exact = tspan(1):0.01:tspan(2);
+P_exact = K * P0 * exp(r * t_exact) ./ (K + P0 * (exp(r * t_exact) - 1));
+
+%% Plot: solution comparison
+figure;
+plot(t_exact, P_exact, 'k-', 'LineWidth', 1.5); hold on;
+plot(t_euler, P_euler, 'ro--', 'MarkerSize', 4);
+plot(t_rk4,   P_rk4,   'bs--', 'MarkerSize', 4);
+legend('Analytical', 'Euler', 'RK4', 'Location', 'southeast');
+xlabel('Time');
+ylabel('Population P(t)');
+title('Logistic Growth: Euler vs RK4 vs Analytical Solution');
+grid on;
+
+%% Plot: error comparison (log scale)
+P_exact_at_euler = interp1(t_exact, P_exact, t_euler);
+P_exact_at_rk4   = interp1(t_exact, P_exact, t_rk4);
+
+err_euler = abs(P_euler - P_exact_at_euler);
+err_rk4   = abs(P_rk4   - P_exact_at_rk4);
+
+figure;
+semilogy(t_euler, err_euler, 'ro-'); hold on;
+semilogy(t_rk4,   err_rk4,   'bs-');
+legend('Euler error', 'RK4 error', 'Location', 'best');
+xlabel('Time');
+ylabel('Absolute Error (log scale)');
+title('Error Comparison: Euler vs RK4');
+grid on;
+
+%% Summary
+fprintf('Max Euler error: %.4f\n', max(err_euler));
+fprintf('Max RK4 error:   %.6f\n', max(err_rk4));
